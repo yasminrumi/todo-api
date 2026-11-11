@@ -1,9 +1,9 @@
 # Todo REST API
 
-**Student:** Mst Yasmin Akter
-**Student ID:** 2310637
-**Course:** API Programming
-**Assignment:** 4. Create a server using node.js and express
+- Student: Mst Yasmin Akter
+- Student ID: 2310637
+- Course: API Programming
+- Assignment: 4. Create a server using node.js and express
 
 A REST API for a Todo list, built with Node.js and Express.
 Each todo has a state: `todo`, `doing` or `done`. Data is kept in an array (no database).
