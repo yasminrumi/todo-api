@@ -1,0 +1,83 @@
+@baseUrl = http://localhost:3000
+
+### ===== HAPPY PATHS =====
+
+### 1. Create a todo => 201
+# @name created
+POST {{baseUrl}}/todos
+Content-Type: application/json
+
+{
+  "title": "Write API documentation",
+  "description": "OpenAPI + README examples",
+  "state": "todo"
+}
+
+### id of the todo created above
+@id = {{created.response.body.id}}
+
+### 2. Get all todos => 200
+GET {{baseUrl}}/todos
+
+### 3. Filter by state => 200
+GET {{baseUrl}}/todos?state=todo
+
+### 4. Get a single todo => 200
+GET {{baseUrl}}/todos/{{id}}
+
+### 5. Update a todo => 200
+PUT {{baseUrl}}/todos/{{id}}
+Content-Type: application/json
+
+{ "state": "doing" }
+
+### 6. Delete a todo => 204
+DELETE {{baseUrl}}/todos/{{id}}
+
+
+### ===== CLIENT ERRORS =====
+
+### 7. POST malformed JSON => 400
+POST {{baseUrl}}/todos
+Content-Type: application/json
+
+{ "title": "Missing brace"
+
+### 8. POST without title => 400
+POST {{baseUrl}}/todos
+Content-Type: application/json
+
+{ "description": "No title" }
+
+### 9. POST with invalid state => 400
+POST {{baseUrl}}/todos
+Content-Type: application/json
+
+{ "title": "Test", "state": "finished" }
+
+### 10. POST with invalid dueDate => 400
+POST {{baseUrl}}/todos
+Content-Type: application/json
+
+{ "title": "Test", "dueDate": "abc" }
+
+### 11. GET with invalid state filter => 400
+GET {{baseUrl}}/todos?state=finished
+
+### 12. GET todo that does not exist => 404
+GET {{baseUrl}}/todos/1000
+
+### 13. PUT with invalid state => 400 (run request 1 again first, because request 6 deleted the todo)
+PUT {{baseUrl}}/todos/{{id}}
+Content-Type: application/json
+
+{ "state": "finished" }
+
+### 14. PUT todo that does not exist => 404
+PUT {{baseUrl}}/todos/1000
+Content-Type: application/json
+
+{ "state": "doing" }
+
+### 15. DELETE todo that does not exist => 404
+DELETE {{baseUrl}}/todos/1000
