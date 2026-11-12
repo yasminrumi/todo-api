@@ -19,25 +19,34 @@ let todos = [
     }
 ]
 
+// true if value is a real date in format YYYY-MM-DD, e.g. "2026-12-31"
+function isValidDate(value) {
+    if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value))
+        return false
+    const date = new Date(value)
+    // "2026-02-30" becomes March 2, so it does not match the original text
+    return !isNaN(date) && date.toISOString().slice(0, 10) === value
+}
+
 // returns an error message, or null if the data is valid
 function validate(data, isNew) {
-    if (!data || typeof data !== 'object')
-        return "Body must be JSON"
+    if (!data || typeof data !== 'object' || Array.isArray(data))
+        return "Body must be a JSON object"
     if ((isNew || data.title !== undefined) && (typeof data.title !== 'string' || data.title.trim() === ''))
-        return "title is required"
+        return "title is required and must be a non-empty string"
     if (data.description !== undefined && typeof data.description !== 'string')
         return "description must be a string"
     if (data.state !== undefined && !states.includes(data.state))
         return "state must be todo, doing or done"
-    if (data.dueDate && isNaN(Date.parse(data.dueDate)))
-        return "dueDate is not a valid date"
+    if (data.dueDate !== undefined && data.dueDate !== null && !isValidDate(data.dueDate))
+        return "dueDate must be a valid date in format YYYY-MM-DD"
     return null
 }
 
 // GET /todos and GET /todos?state=doing
 router.get('/', (req, res) => {
     const state = req.query.state
-    if (!state)
+    if (state === undefined)
         return res.json(todos)
     if (!states.includes(state))
         return res.status(400).json({ error: "state must be todo, doing or done" })
@@ -60,7 +69,7 @@ router.post('/', (req, res) => {
 
     const todo = {
         id: uuidv4(),
-        title: req.body.title,
+        title: req.body.title.trim(),
         description: req.body.description || '',
         state: req.body.state || 'todo',
         dueDate: req.body.dueDate || null,
@@ -82,7 +91,7 @@ router.put('/:id', (req, res) => {
         return res.status(400).json({ error })
 
     const { title, description, state, dueDate } = req.body
-    if (title !== undefined) todos[fid].title = title
+    if (title !== undefined) todos[fid].title = title.trim()
     if (description !== undefined) todos[fid].description = description
     if (state !== undefined) todos[fid].state = state
     if (dueDate !== undefined) todos[fid].dueDate = dueDate
