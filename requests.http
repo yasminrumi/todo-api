@@ -44,6 +44,15 @@ Content-Type: application/json
 { "state": "doing" }
 
 
+### 6b. Get todos in CSV format => 200 (text/csv)
+GET {{baseUrl}}/todos?state=done
+Accept: text/csv
+
+### 6c. Unsupported format => 406
+GET {{baseUrl}}/todos
+Accept: application/xml
+
+
 ### ===== CLIENT ERRORS =====
 
 ### 7. POST malformed JSON => 400

@@ -76,3 +76,20 @@ export function remove(id) {
 }
 
 reset()
+
+// converts todos to CSV text (used when the client sends Accept: text/csv)
+export function toCsv(todos) {
+    const quote = text => '"' + String(text).replaceAll('"', '""') + '"'
+    return [
+        ['id', 'title', 'description', 'state', 'dueDate', 'createdAt', 'updatedAt'],
+        ...todos.map(item => [
+            item.id,
+            quote(item.title),
+            quote(item.description),
+            item.state,
+            item.dueDate ?? '',
+            item.createdAt,
+            item.updatedAt
+        ])
+    ].map(row => row.join(',')).join('\n')
+}

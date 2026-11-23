@@ -3,7 +3,7 @@
 - **Student:** Mst Yasmin Akter
 - **Student ID:** 2310637
 - **Course:** API Programming
-- **Assignment:** 5. Unit tests and integration tests (continues Assignment 4)
+- **Assignment:** 6. OpenAPI documentation and CSV format (continues Assignments 4 and 5)
 
 A REST API for a Todo list, built with Node.js and Express.
 Each todo has a state: `todo`, `doing` or `done`. Data is kept in an array (no database).
@@ -14,6 +14,26 @@ Each todo has a state: `todo`, `doing` or `done`. Data is kept in an array (no d
     npm run dev
 
 Server: `http://localhost:3000`
+
+## API documentation (OpenAPI)
+
+Start the server and open `http://localhost:3000/doc`.
+The page is made with [swagger-ui-express](https://github.com/scottie1984/swagger-ui-express)
+from the OpenAPI description in `src/openapi.js`. Every endpoint can be tested
+from the page with **Try it out** and **Execute**.
+
+## CSV format
+
+`GET /todos` returns JSON by default. A client can ask for CSV with the `Accept` header:
+
+    GET http://localhost:3000/todos?state=done
+    Accept: text/csv
+
+The route uses `req.accepts(['application/json', 'text/csv'])` to choose the format,
+and `toCsv()` in `src/todoStore.js` builds the CSV text. Text fields are in quotes,
+and quotes inside the text are doubled, so commas and quotes in a title do not break the CSV.
+An unsupported format (e.g. `Accept: application/xml`) returns 406.
+In the Swagger page, the format can be chosen from the **Media type** list of `GET /todos`.
 
 ## How to run the tests
 
@@ -27,9 +47,10 @@ The server does not need to be running, supertest uses the Express app directly.
 
     src/
       server.js          starts the server
-      app.js             express app, routes, error handler
+      app.js             express app, routes, /doc, error handler
+      openapi.js         OpenAPI description of the API (shown at /doc)
       validation.js      validation functions (isValidDate, isValidState, validate)
-      todoStore.js       todo data and functions (getAll, getById, create, update, remove, reset)
+      todoStore.js       todo data and functions (getAll, getById, create, update, remove, reset, toCsv)
       routes/
         index.js         GET /
         todos.js         all /todos endpoints (HTTP only)
@@ -61,6 +82,8 @@ The server does not need to be running, supertest uses the Express app directly.
 | POST | /todos | 201 + Location header |
 | GET | /todos | 200 |
 | GET | /todos?state=todo\|doing\|done | 200 |
+| GET | /todos with `Accept: text/csv` | 200, CSV |
+| GET | /doc | 200, Swagger documentation page |
 | GET | /todos/{id} | 200 |
 | PUT | /todos/{id} | 200 |
 | DELETE | /todos/{id} | 204 |
@@ -75,6 +98,7 @@ The server does not need to be running, supertest uses the Express app directly.
 | 400 | `dueDate` is not a real date in format `YYYY-MM-DD` (e.g. `abc`, `2026-02-30`, `false`, `0`) |
 | 400 | `?state=` filter is empty or not `todo`, `doing` or `done` |
 | 404 | Todo with the given id does not exist |
+| 406 | `GET /todos` with an `Accept` format that is not JSON or CSV |
 | 413 | Request body is bigger than 100 kB |
 | 415 | Unsupported charset (e.g. `latin1`) or content encoding (e.g. `compress`) |
 | 500 | Unexpected server error |
@@ -116,7 +140,9 @@ Below are the changes I implemented. The API's functionality remains unchanged a
 | PUT /todos/{id} | 200, change is saved | 400 for invalid state or dueDate, or array body; 404 |
 | DELETE /todos/{id} | 204 | 404 if deleted again |
 
-Result: 56 tests (15 suites), all passing.
+Assignment 6 added tests for `toCsv`, for `GET /todos` with `Accept: text/csv` (200) and an unsupported format (406), and for `GET /doc` (200).
+
+Result: 62 tests (17 suites), all passing.
 
 ## Manual tests
 
@@ -134,6 +160,10 @@ The todo is deleted only at the end of the sequence.
     node -e "require('fs').mkdirSync('tests',{recursive:true});require('fs').writeFileSync('tests/large-body.json',JSON.stringify({title:'Large body',description:'a'.repeat(200000)}))"
 
 ## Report and reflection
+
+### Assignment 6: OpenAPI and CSV
+
+_(Write a few sentences in your own words: what you added, what was difficult, and what you learned.)_
 
 ### Assignment 5: Testing
 

@@ -26,6 +26,14 @@ describe('GET /', () => {
     })
 })
 
+describe('GET /doc', () => {
+    test('returns the Swagger documentation page => 200', async () => {
+        const res = await request(app).get('/doc/')
+        assert.equal(res.status, 200)
+        assert.match(res.text, /swagger/i)
+    })
+})
+
 describe('POST /todos', () => {
     test('creates a todo => 201 with Location header', async () => {
         const res = await request(app)
@@ -138,6 +146,22 @@ describe('GET /todos', () => {
         assert.equal(res.status, 200)
         assert.equal(res.body.length, 1)
         assert.equal(res.body[0].title, 'Doing one')
+    })
+
+    test('Accept: text/csv returns CSV => 200', async () => {
+        await createTodo({ title: 'Done one', state: 'done' })
+        const res = await request(app).get('/todos?state=done').set('Accept', 'text/csv')
+        assert.equal(res.status, 200)
+        assert.match(res.headers['content-type'], /text\/csv/)
+        const lines = res.text.split('\n')
+        assert.equal(lines[0], 'id,title,description,state,dueDate,createdAt,updatedAt')
+        assert.equal(lines.length, 2)
+        assert.match(lines[1], /"Done one"/)
+    })
+
+    test('unsupported Accept format => 406', async () => {
+        const res = await request(app).get('/todos').set('Accept', 'application/xml')
+        assert.equal(res.status, 406)
     })
 
     test('invalid state filter => 400', async () => {

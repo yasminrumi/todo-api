@@ -1,4 +1,6 @@
 import express from 'express'
+import swaggerUi from 'swagger-ui-express'
+import openapi from './openapi.js'
 
 import indexRouter from './routes/index.js'
 import todosRouter from './routes/todos.js'
@@ -11,6 +13,9 @@ app.use(express.json())
 // define handlers for various routes
 app.use('/', indexRouter)
 app.use('/todos', todosRouter)
+
+// OpenAPI documentation: http://localhost:3000/doc
+app.use('/doc', swaggerUi.serve, swaggerUi.setup(openapi))
 
 // error handler
 app.use((err, req, res, next) => {

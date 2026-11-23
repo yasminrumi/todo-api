@@ -87,3 +87,22 @@ describe('remove', () => {
         assert.equal(store.getAll().length, 1)
     })
 })
+
+describe('toCsv', () => {
+    test('returns a header row and one row per todo', () => {
+        const todo = store.create({ title: 'CSV', description: 'Text', dueDate: '2026-12-31' })
+        const lines = store.toCsv([todo]).split('\n')
+        assert.equal(lines[0], 'id,title,description,state,dueDate,createdAt,updatedAt')
+        assert.equal(lines[1], `${todo.id},"CSV","Text",todo,2026-12-31,${todo.createdAt},${todo.updatedAt}`)
+    })
+
+    test('escapes quotes and keeps commas inside quotes', () => {
+        const todo = store.create({ title: 'Say "hi", please' })
+        const line = store.toCsv([todo]).split('\n')[1]
+        assert.match(line, /,"Say ""hi"", please",/)
+    })
+
+    test('returns only the header for an empty list', () => {
+        assert.equal(store.toCsv([]), 'id,title,description,state,dueDate,createdAt,updatedAt')
+    })
+})

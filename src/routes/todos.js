@@ -11,7 +11,14 @@ router.get('/', (req, res) => {
     const state = req.query.state
     if (state !== undefined && !isValidState(state))
         return res.status(400).json({ error: "state must be todo, doing or done" })
-    res.json(store.getAll(state))
+
+    const todos = store.getAll(state)
+    const format = req.accepts(['application/json', 'text/csv'])
+    if (format === 'text/csv')
+        return res.type('text/csv').send(store.toCsv(todos))
+    if (!format)
+        return res.status(406).json({ error: "Supported formats: application/json, text/csv" })
+    res.json(todos)
 })
 
 // GET /todos/:id
