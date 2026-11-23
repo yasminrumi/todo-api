@@ -163,7 +163,7 @@ The todo is deleted only at the end of the sequence.
 
 ### Assignment 6: OpenAPI and CSV
 
-_(Write a few sentences in your own words: what you added, what was difficult, and what you learned.)_
+I documented my Todo API with OpenAPI, so the endpoints can be viewed and tested at `http://localhost:3000/doc`. I also added CSV support to `GET /todos` using the `Accept` header. At first I could not find where to choose the format in Swagger, but then I found the Media type list. I learned that one endpoint can return different formats, and that OpenAPI makes an API easier to test.
 
 ### Assignment 5: Testing
 
